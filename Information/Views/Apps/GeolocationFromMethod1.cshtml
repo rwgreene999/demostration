@@ -1,0 +1,95 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>map sample</title>
+
+  <link rel="stylesheet" href="my_jquery-ui.css" />
+
+    <style>
+
+    
+
+    </style>
+
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px
+        }
+    </style>
+
+    <script>
+
+    function displayError(error)
+    {
+        var errors = {
+        1: 'Permission denied',
+        2: 'Position unavailable',
+        3: 'Request timeout'
+        }
+        alert("Error: " + errors[error.code]);
+    }
+
+    function parseTimestamp(timestamp){
+        var d = new Date(timestamp);
+        var day = d.getDay();
+        var month = d.getMonth();
+        var year = d.getYear();
+        var hour = d.getHours();
+        var minute = d.getMinutes();
+        var second = d.getSeconds();
+        var ms = d.getMilliseconds();
+        return month + "/" + day + "/" + year + " " + hour + ":" + minute + ":" + second + "." + ms ;
+    }
+
+
+    </script>
+
+
+</head>
+
+
+<body>
+<h1>Map Sample </h1>
+
+<p>Click marker for info</p>
+<div id="map" class="geoMap">
+</div>
+
+    <script>
+            console.log("accessing geolocation");
+    if (navigator.geolocation)
+    {
+        var timeout = 10000;
+        navigator.geolocation.getCurrentPosition(
+            displayPosition,
+            displayError,
+            {enableHighAccuracy:true, timeout:timeout, maximumAge:0}
+            );
+    } else
+    {
+        alert("No geolocation abilities");
+    }
+    console.log("post accessing geolocation");
+    function displayPosition(position){
+        var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        // var options = { zoom:10, center:pos, maptypeId:google.mapTypeId.ROADMAP };
+        var options = { zoom:12, center:pos };
+        var mapplace = new google.maps.Map(document.getElementById("map"), options );
+        var marker = new google.maps.Marker({position:pos, map:mapplace, title:"My location"});
+        var contentString = "<b>Time:</b> " + parseTimestamp(position.timestamp) + "<br/><b> Location: </b> Lat:" + position.coords.latitude + ", Long:" + position.coords.longitude + ", accuracy: " + position.coords.accuracy;
+        var infoWindow = new google.maps.InfoWindow({content:contentString});
+        google.maps.event.addListener(marker, "click", function(){infoWindow.open(mapplace,marker)});
+
+    }
+    </script>
+
+
+</body>

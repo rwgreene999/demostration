@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Quote jQuery Version ";
+}
+
+
+<div class="container">
+    <div class="row">
+        <p>Quotes <small><small>the jQuery version</small></small>:</p>
+
+        <div class="col-md-4 float-left">
+            <label title="more quotes:">
+                <input type="text" value="" id="searchCriteria" placeholder="optional filter" />
+                <input type="button" class="btn btn-success" id="searchQuotes" value="Get Quote" />
+            </label>
+        </div>
+
+        <ul class="col-md-4" id="theQuotes">
+        </ul>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+    var operationalParameters =
+    {
+        "quoteServerName": "@ViewBag.QuoteServerLocation",
+        "timeout": "@ViewBag.timeOut"
+    }
+
+
+    $(function () {
+        $('#getQuote').click(function () {
+            getAQuote();
+        });
+        $('#searchQuotes').click(function () {
+            searchQuotes();
+        });
+    });
+
+    function searchQuotes() {
+        var searchFor = searchCriteria.value;
+        console.log(searchFor);
+        var getter = $.getJSON(operationalParameters.quoteServerName + 'quote/' + searchFor, { type: "GET" });
+        getter.done(function (theQuotes) {
+            listTheQuotes(theQuotes);
+        });
+    }
+
+    function listTheQuotes(theQuotes) {
+        $('#theQuotes').empty();
+        $.each(theQuotes, function (idx, value) {
+            var data = "<b>" + value.Quote + "</b><br>" + "<i>" + value.Author + "</i><hr>";
+            $('#theQuotes').append("<li>" + data + "</li>");
+        });
+        if (theQuotes.length >= 10) {
+            var data = "<b><i>" + "results limited to 10" + "</i></b><br>";
+            $('#theQuotes').append("<li>" + data + "</li>");
+        }
+    }
+
+    function getAQuote() {
+        var getter = $.getJSON(operationalParameters.quoteServerName + 'quote', { type: "GET" });
+        getter.done(function (theQuote) {
+            listTheQuotes(theQuote);
+        });
+    }
+
+
+    $(getAQuote());
+    // console.log(operationParameters);
+    // console.log(operationParameters.timeOut);
+
+
+
+
+
+
+</script>

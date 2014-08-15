@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+<div class="container">
+
+<article>
+    <p>
+This is demonstration program to experiment with multiple techniques for presenting information and apps in a browser while consuming Web Api services. 
+    </p>
+
+    <p>
+The goal is to start with traditional MVC WebForm application and enhance with the following features: 
+        <ul>
+            <li>Adding Web-API interface for gathering server side information </li>
+            <li>Using background access for server information</li>
+            <li>Using HTML5/CSS3 attributes</li>
+            <li>Presenting information using either jQuery or Angular (different pages)</li>
+            <li>Making the pages responsive to device features</li>
+            <li>Including industry standard CSS descriptions such as bootstrap</li>
+        </ul>
+    </p>
+
+</article>
+
+    </div>
+
+<aside>
+    <ul>
+        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+        <li>@Html.ActionLink("About", "About", "Home")</li>
+        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+    </ul>
+</aside>
