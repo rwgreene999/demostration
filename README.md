@@ -1,8 +1,10 @@
-demostration
-============
+This is Demo code, a demonstration program
+==========================================
 
-demostration
+AKA: DEMOstration 
+-----------------
 
-* change 1
-* change 2
-* change 3
+[Access working version here] (http://demostration.azurewebsites.net)
+
+
+-rwg 
