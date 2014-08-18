@@ -558,8 +558,8 @@
     <Content Include="Scripts\toastr.js" />
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Scripts\toastr.min.js.map" />
-    <None Include="Views\Apps\GeolocationFromGoogle.cshtml" />
-    <None Include="Views\Apps\GeolocationFromMethod1.cshtml" />
+    <Content Include="Views\Apps\GeolocationFromGoogle.cshtml" />
+    <Content Include="Views\Apps\GeolocationFromMethod1.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
