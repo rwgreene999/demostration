@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
+
 namespace Information.Controllers
 {
     public class HomeController : Controller
@@ -18,6 +19,9 @@ namespace Information.Controllers
         public ActionResult About()
         {
             ViewBag.Message = "Robert's Demo.";
+            var date = System.IO.File.GetCreationTime(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            ViewBag.BuildDate = date.ToString(); 
 
             return View();
         }
