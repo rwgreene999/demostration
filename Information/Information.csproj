@@ -226,6 +226,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="HelloWorld.html" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
     <Content Include="Scripts\angular-cookies.js" />
@@ -595,6 +596,7 @@
     <Content Include="Views\Apps\QuoteA.cshtml" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\Apps\MovieReviewDemo.cshtml" />
+    <Content Include="Views\Apps\LongLat.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

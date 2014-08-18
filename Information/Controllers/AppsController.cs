@@ -46,5 +46,9 @@ namespace Information.Controllers
         {
             return View();
         }
+        public ActionResult LongLat()
+        {
+            return View();
+        }
     }
 }
