@@ -5,7 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 
 using System.Web.Http;
-using Information.Models; 
+using Information.Models;
+using Information.Utilities; 
 
 namespace Information.Controllers.ApiControllers
 {
@@ -18,7 +19,7 @@ namespace Information.Controllers.ApiControllers
             {
                 id = " "; 
             }
-            List<string> Quotes = GetQuoteList();
+            List<string> Quotes = BasicQuotes.GetQuoteList();
             List<QuoteRecord> returned = new List<QuoteRecord>();
 
             if (Quotes == null)
@@ -27,7 +28,7 @@ namespace Information.Controllers.ApiControllers
             var results = Quotes.Where(q => q.IndexOf(id, StringComparison.CurrentCultureIgnoreCase) > 0).OrderBy(r => Guid.NewGuid()).Take(maxToReturn); 
             foreach (var q in results)
             {
-                QuoteRecord qr = BuildQuote(q);
+                QuoteRecord qr = BasicQuotes.BuildQuote(q);
                 returned.Add(qr);
 
             }
@@ -45,16 +46,7 @@ namespace Information.Controllers.ApiControllers
         }
 
 
-        public class SubmittedQuote
-        {
-            public string Author { get; set; }
-            public string Quote{ get; set; }
-            public string Reference { get; set; }
-            public string Email { get; set; }
-            public int VoteUp { get; set; }
-            public int VoteDown { get; set; }
-            public bool ModeratorApproved { get; set; }
-        }
+
 
         private static List<QuoteRecord> ReturnNotFound()
         {
@@ -67,13 +59,13 @@ namespace Information.Controllers.ApiControllers
         public List<QuoteRecord> Get()
         {
             List<QuoteRecord> returned = new List<QuoteRecord>();
-            List<string> Quotes = GetQuoteList();
+            List<string> Quotes = BasicQuotes.GetQuoteList();
             if (Quotes == null)
                 return ReturnNotFound();
 
             int Idx = random.Next(0, Quotes.Count);
 
-            QuoteRecord qr = BuildQuote(Quotes[Idx]);
+            QuoteRecord qr = BasicQuotes.BuildQuote(Quotes[Idx]);
             returned.Add(qr);
 
             return returned;
@@ -93,28 +85,6 @@ namespace Information.Controllers.ApiControllers
             string QuoteFile = HttpContext.Current.Server.MapPath("~/App_Data/sig.dat");
             // WIP save the file 
         
-        }
-
-        private static List<string> GetQuoteList()
-        {
-            var app = HttpContext.Current.Application;
-            List<string> Quotes = (List<string>)app["AppQuotes"];
-            return Quotes;
-        }
-
-
-        private static QuoteRecord BuildQuote(string q)
-        {
-            string[] data = q.Split(new string[] { "--" }, StringSplitOptions.RemoveEmptyEntries);
-            string quote = data[0];
-            string author = "";
-            if (data.Length > 1)
-            {
-                author = data[1];
-            }
-
-            QuoteRecord qr = new QuoteRecord { Author = author, Quote = quote };
-            return qr;
         }
 
         private static Random random = new Random(); 

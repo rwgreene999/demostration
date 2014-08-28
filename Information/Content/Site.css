@@ -219,11 +219,11 @@ ul#menu {
     .featured .content-wrapper {
         background-color: #0eb8b8;
         background-color: #7ac0da;
-        background-image: -ms-linear-gradient(left, #a4d4e6 0%, #13178e 100%);
-        background-image: -o-linear-gradient(left, #a4d4e6 0%, #13178e 100%);
-        background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #a4d4e6), color-stop(1, #ba8bc3));
-        background-image: -webkit-linear-gradient(left, #a4d4e6 40%, #0eb8b8 90%);
-        background-image: linear-gradient(left, #a4d4e6 0%, #13178e 100%);
+        background-image: -ms-linear-gradient(left, #48C7F7 40%, #960EB8 90%);
+        background-image: -o-linear-gradient(left, #48C7F7 40%, #960EB8 90%);
+        background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #48C7F7), color-stop(1, #960EB8 ));
+        background-image: -webkit-linear-gradient(left, #48C7F7 40%, #960EB8 90%);
+        background-image: linear-gradient(left, #48C7F7 40%, #960EB8 90%);
         color: #efeeef;
         padding: 20px 40px 30px 40px;
     }

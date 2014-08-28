@@ -8,6 +8,10 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Table;
+
 namespace Information
 {
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
