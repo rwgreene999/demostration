@@ -154,7 +154,7 @@ namespace Information.Controllers.ApiControllers
                     foreach (var quote in chunk)
                     {
                         var thisQuote = BasicQuotes.BuildQuote(quote);
-                        QuoteRec q = new QuoteRec { Author = thisQuote.Author, Quote = thisQuote.Quote, ModeratorApproved = true, QuoteSubmitter = Guid.NewGuid() };
+                        QuoteRec q = new QuoteRec { Author = thisQuote.Author, Quote = thisQuote.Quote, ModeratorApproved = true, QuoteSubmitter = Guid.Empty };
                         QuoteTableEntity qte = new QuoteTableEntity { PartitionKey = "quoter", RowKey = Guid.NewGuid().ToString("N"), idxQuoteAsLoaded=++CntQuote };
                         qte.StoreQuoteRecord(q); 
                         batchOperation.Insert(qte);

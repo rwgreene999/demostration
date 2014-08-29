@@ -64,6 +64,7 @@ namespace Information
                     quoteRecs.Add(qr); 
                 }
                 Application["FullAppQuotes"] = quoteRecs;
+
             }
             catch( Microsoft.WindowsAzure.Storage.StorageException ex )
             {
