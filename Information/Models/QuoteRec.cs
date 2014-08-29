@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Information.Models
 {
-    public class SubmittedQuote
+    public class QuoteRec
     {
         public string Author { get; set; }
         public string Quote { get; set; }

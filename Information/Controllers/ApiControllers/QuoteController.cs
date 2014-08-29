@@ -37,7 +37,7 @@ namespace Information.Controllers.ApiControllers
         }
 
 
-        public QuoteRecord Post([FromBody] SubmittedQuote submittedQuote)
+        public QuoteRecord Post([FromBody] QuoteRec submittedQuote)
         {
             System.Diagnostics.Debug.WriteLine(submittedQuote.ToString());
             QuoteRecord qr = new QuoteRecord { Author = submittedQuote.Author, Quote = submittedQuote.Quote };

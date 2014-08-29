@@ -4,21 +4,23 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-using System.Web.Http;
 using Information.Models;
 
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Table;
-using System.Configuration;
+using System.Web.Http;
 using System.Web;
 using System.Net;
 using System.Net.Http;
 using Information.Utilities;
+
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Table;
+
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.WindowsAzure.Storage.Table.Protocol;
-using Newtonsoft.Json; 
+
 
 namespace Information.Controllers.ApiControllers
 {
@@ -39,13 +41,13 @@ namespace Information.Controllers.ApiControllers
             {
                 filter = "";
             }
-            var rsp = new SubmittedQuote { Author = "WIP", Quote = "WIP" };
+            var rsp = new QuoteRec { Author = "WIP", Quote = "WIP" };
             return Request.CreateResponse(HttpStatusCode.OK, rsp);
         }
 
         public HttpResponseMessage Get()
         {
-            var rsp = new SubmittedQuote { Author = "WIP", Quote = "WIP" };
+            var rsp = new QuoteRec { Author = "WIP", Quote = "WIP" };
             return Request.CreateResponse(HttpStatusCode.OK, rsp);
         }
 
@@ -55,7 +57,7 @@ namespace Information.Controllers.ApiControllers
             var rsp = ""; 
             try
             {
-                CloudTable tableReference = GetQuotesTableReference();
+                CloudTable tableReference = QuoteDB.GetQuotesTableReference();
                 tableReference.DeleteIfExists();
                 code = HttpStatusCode.OK; 
             }
@@ -70,13 +72,13 @@ namespace Information.Controllers.ApiControllers
             return Request.CreateResponse(code, rsp);  
         }
 
-        public HttpResponseMessage Post(SubmittedQuote submittedQuote)
+        public HttpResponseMessage Post(QuoteRec submittedQuote)
         {
             var rsp = "WIP: Not Implemented Yet";
             return Request.CreateResponse(HttpStatusCode.InternalServerError, rsp);
         }
 
-        public HttpResponseMessage Put(SubmittedQuote submittedQuote)
+        public HttpResponseMessage Put(QuoteRec submittedQuote)
         {
             var rsp = "Failed";
             var code = HttpStatusCode.InternalServerError;
@@ -97,7 +99,7 @@ namespace Information.Controllers.ApiControllers
 
         private bool RecreateTableStorage()
         {
-            CloudTable tableReference = GetQuotesTableReference();
+            CloudTable tableReference = QuoteDB.GetQuotesTableReference();
             DateTime dtTimeout = DateTime.Now.AddSeconds(20); 
             
             try
@@ -126,15 +128,6 @@ namespace Information.Controllers.ApiControllers
             return AddQuotesToNewTable();
         }
 
-        private static CloudTable GetQuotesTableReference()
-        {
-            var conn = ConfigurationManager.AppSettings["StorageConnectionString"];
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(conn);
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-            CloudTable tableReference = tableClient.GetTableReference("quotes");
-            return tableReference;
-        }
-
         private bool AddQuotesToNewTable()
         {
             bool Worked = false; 
@@ -143,7 +136,7 @@ namespace Information.Controllers.ApiControllers
             try
             {
 
-                CloudTable tableReference = GetQuotesTableReference();
+                CloudTable tableReference = QuoteDB.GetQuotesTableReference();
 
                 // 
                 // this process of adding batchs of 90 came from an error 
@@ -161,9 +154,9 @@ namespace Information.Controllers.ApiControllers
                     foreach (var quote in chunk)
                     {
                         var thisQuote = BasicQuotes.BuildQuote(quote);
-                        SubmittedQuote q = new SubmittedQuote { Author = thisQuote.Author, Quote = thisQuote.Quote, ModeratorApproved = true, QuoteSubmitter = Guid.NewGuid() };
-                        QuoteTableEntity qte = new QuoteTableEntity { PartitionKey = "quoter", RowKey = Guid.NewGuid().ToString("N")};
-                        qte.RealQuote = JsonConvert.SerializeObject(q); 
+                        QuoteRec q = new QuoteRec { Author = thisQuote.Author, Quote = thisQuote.Quote, ModeratorApproved = true, QuoteSubmitter = Guid.NewGuid() };
+                        QuoteTableEntity qte = new QuoteTableEntity { PartitionKey = "quoter", RowKey = Guid.NewGuid().ToString("N"), idxQuoteAsLoaded=++CntQuote };
+                        qte.StoreQuoteRecord(q); 
                         batchOperation.Insert(qte);
                     }
                     tableReference.ExecuteBatch(batchOperation);
@@ -191,18 +184,4 @@ namespace Information.Controllers.ApiControllers
 
     }
 
-    internal class QuoteTableEntity : TableEntity
-    {
-        public QuoteTableEntity(string partition, string guid)
-        {
-            this.PartitionKey = partition;
-            this.RowKey = guid;
-        }
-        public QuoteTableEntity()
-        {
-
-        }
-        public string RealQuote { get; set; }
-        public int QuoteCnt { get; set; }
-    }
 }
