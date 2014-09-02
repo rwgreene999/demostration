@@ -41,14 +41,36 @@ namespace Information.Controllers.ApiControllers
             {
                 filter = "";
             }
-            var rsp = new QuoteRec { Author = "WIP", Quote = "WIP" };
-            return Request.CreateResponse(HttpStatusCode.OK, rsp);
+            try
+            {
+                var quotes = GetRecordsFromDatabase(filter);
+                return Request.CreateResponse(HttpStatusCode.OK, quotes);
+            }
+            catch (Exception ex)
+            {
+                new LogException(ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+            finally
+            {
+            }
         }
 
         public HttpResponseMessage Get()
         {
-            var rsp = new QuoteRec { Author = "WIP", Quote = "WIP" };
-            return Request.CreateResponse(HttpStatusCode.OK, rsp);
+            try
+            {
+                var quotes = GetRecordsFromDatabase();
+                return Request.CreateResponse(HttpStatusCode.OK, quotes);
+            }
+            catch (Exception ex)
+            {
+                new LogException(ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+            finally
+            {
+            }
         }
 
         public HttpResponseMessage Delete()
@@ -116,13 +138,13 @@ namespace Information.Controllers.ApiControllers
                     Thread.Sleep(2000);// The table is currently being deleted. Try again until it works.
                 } else{
                     new LogException(ex); 
-                    return false; 
+                    throw new TimeoutException("Timeout waiting for empty database", ex);                     
                 }
             }
             catch (Exception ex)
             {
-                new LogException(ex); 
-                return false; 
+                new LogException(ex);
+                throw; 
             }
 
             return AddQuotesToNewTable();
@@ -180,6 +202,32 @@ namespace Information.Controllers.ApiControllers
         {
             var rsp = "WIP: Not Implemented Yet";
             return Request.CreateResponse(HttpStatusCode.InternalServerError, rsp);
+        }
+
+
+        private List<QuoteRec> GetRecordsFromDatabase(  )
+        {
+            List<QuoteRec> results = new List<QuoteRec>(); 
+            CloudTable tableReference = QuoteDB.GetQuotesTableReference();
+            TableQuery<QuoteTableEntity> query = new TableQuery<QuoteTableEntity>(); 
+            foreach( QuoteTableEntity qte in tableReference.ExecuteQuery(query))
+            {
+                QuoteRec qr = qte.ExtractQuoteRecord(); 
+                results.Add( qr ); 
+            }
+            return results; 
+        }
+        private List<QuoteRec> GetRecordsFromDatabase( string filter )
+        {
+            List<QuoteRec> results = new List<QuoteRec>(); 
+            CloudTable tableReference = QuoteDB.GetQuotesTableReference();
+            TableQuery<QuoteTableEntity> query = new TableQuery<QuoteTableEntity>().Where(TableQuery.GenerateFilterCondition("Quote", QueryComparisons.Equal, filter));
+            foreach (QuoteTableEntity qte in tableReference.ExecuteQuery(query))
+            {
+                QuoteRec qr = qte.ExtractQuoteRecord();
+                results.Add(qr);
+            }
+            return results;
         }
 
     }

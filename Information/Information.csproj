@@ -170,6 +170,8 @@
     <Compile Include="Utilities\QuoteDB.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap_orange.css" />
+    <Content Include="Content\bootstrap_sandstone.css" />
     <Content Include="Content\bootstrap_darkly.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
