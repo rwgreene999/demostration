@@ -120,12 +120,12 @@
                             <div id="QuoteOptionContainer" class="navbar-collapse collapse navbar-responsive-collapse">
                                 <ul class="nav navbar-nav">
                                     <form class="navbar-form navbar-left">
-                                        <input type="text" class="form-control col-lg-8" placeholder="optional filter">
+                                        <input id="ListQuoteTableFilter" type="text" class="form-control col-lg-8" placeholder="optional filter">
                                     </form>
-                                    <li class="active"><a href="#QuoteOptionContainer">List</a></li>
-                                    <li><a href="#QuoteOptionContainer">List Unapproved</a></li>
+                                    <li id="ListQuoteTable"><a>List</a></li>
+                                    <li id="ListQuoteUnapproved"><a>List Unapproved</a></li>
                                     <li id="DeleteDatabase" class="btn-danger minbtn "><a>Delete Database</a></li>
-                                    <li id="RebuildDatabase"class="btn-success"><a>Rebuild DB</a></li>
+                                    <li id="RebuildDatabase" class="btn-success"><a>Rebuild DB</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -145,25 +145,22 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="page-header">
-                        <h1 >Quote List</h1>
+                        <h1>Quote List</h1>
                     </div>
 
                     <div class="bs-component">
-                        <table class="table table-striped table-hover ">
+                        <table class="table table-striped table-hover " id="QuoteListTable">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Author</th>
-                                    <th>Quote</th>
                                     <th>Approved</th>
-                                    <th>Submitter</th>
                                     <th>Ups</th>
                                     <th>Downs</th>
+                                    <th>Quote</th>
                                 </tr>
                             </thead>
-                            <tbody id="QuoteListBody">
-
-                            </tbody>
+                            <tbody id="QuoteListBody"></tbody>
                         </table>
                     </div><!-- /example -->
                 </div>
@@ -179,6 +176,14 @@
     <script src="~/Scripts/toastr.js"></script>
 
     <script>
+
+        var operationalParameters =
+        {
+            "quoteServerName": "@ViewBag.QuoteServerLocation",
+            "timeout": "@ViewBag.timeOut",
+            "managementServerName": "@ViewBag.QuoteServerLocation"
+        }
+
         $(function () {
 
             $('#BasGet').click(function () {
@@ -197,18 +202,81 @@
             $('#RebuildDatabase').click(function () {
                 RebuildDatabase();
             })
+            $('#ListQuoteTable').click(function () {
+                ListQuoteTable();
+            });
+            $('#ListQuoteUnapproved').click(function () {
+                ListQuoteUnapproved();
+            });
+
         });
 
-        var ManagementServerName = 'http://localhost:10017/api/';
+        var AdminTitle = 'Quote Admin';
 
-        function RebuildDatabase()
-        {
-            toastr.info('Database rebuild request is being sent'); 
+        function ListQuoteUnapproved() {
+            toastr.info('Requesting Quote Data', AdminTitle);
+            var filter = ListQuoteTableFilter.value;
             $.ajax({
-                url: ManagementServerName + 'managequotes',
+                url: operationalParameters.managementServerName + 'managequotes\\unapprovd',
+                type: 'GET',
+                data: 'filter=' + filter,
+                success: function (results) { ListQuoteTableExpandTable(results) },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { toastr.error("Error accessing database  " + errorThrown); }
+            });
+
+        }
+
+        function ListQuoteTable() {
+            toastr.info('Requesting Quote Data', AdminTitle);
+            var filter = ListQuoteTableFilter.value;
+            $.ajax({
+                url: operationalParameters.managementServerName + 'managequotes',
+                type: 'GET',
+                data: 'filter=' + filter,
+                success: function (results) { ListQuoteTableExpandTable(results) },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { toastr.error("Error accessing database  " + errorThrown); }
+            });
+
+        }
+
+        function ListQuoteTableExpandTable(queryResults) {
+            $('#QuoteListTable tbody').remove(); 
+
+            if (queryResults.length === 0) {
+                toastr.clear();
+                $('#QuoteListTable').append('<tbody></tbody>')
+                toastr.warning('No data returned from search', AdminTitle);
+                
+                return;
+            }
+
+            var newTableBody = '<tbody>';
+            for (var idx in queryResults) {
+                var row = '<tr><td>' + idx + ' </td>'
+                        + '<td>' + queryResults[idx].Author + '</td>'
+                        + '<td>' + queryResults[idx].ModeratorApproved + '</td>'
+                        + '<td>' + queryResults[idx].VoteUp + '</td>'
+                        + '<td>' + queryResults[idx].VoteDown + '</td>'
+                        + '<td>' + queryResults[idx].Quote + '</td>'
+                        + '/tr>'
+                ;
+                newTableBody = newTableBody + row;
+            }
+            newTableBody = newTableBody + '<tbody>';
+            $('#QuoteListTable').append(newTableBody);
+            toastr.clear();
+        }
+
+
+
+
+        function RebuildDatabase() {
+            toastr.info('Database rebuild request is being sent');
+            $.ajax({
+                url: operationalParameters.managementServerName + 'managequotes',
                 type: 'PUT',
                 data: '',
-                success: function (results) { toastr.success("Database has been rebuild."); },
+                success: function (results) { toastr.success("Database has been rebuilt."); },
                 error: function (XMLHttpRequest, textStatus, errorThrown) { toastr.error("Error rebuilding database  " + errorThrown); }
             });
         }
@@ -230,7 +298,7 @@
                 "containerId": "QuoteOptionContainer"
             }
             var popuprequest = '<div>\
-                <p>Are you sure you wish to delete the quote database?</p>\
+                <p><b>Are you sure you wish to delete the quote database?</b></p>\
             </div>\
             <div>\
                 <button type="button" id="okDeleteDBData" class="btn btn-danger minbtn" onclick="doDeleteDB()" >Delete Database Data</button>\
@@ -245,7 +313,7 @@
 
 
         function doDeleteDB() {
-            //var putter = $.getJSON(ManagementServerName + 'managequotes', { type: "" });
+            //var putter = $.getJSON(operationalParameters.managementServerName + 'managequotes', { type: "" });
             //putter.done(function (theQuote) {
             //    toastr.success("Request has been sent, this might take a minute");
             //});
@@ -253,7 +321,7 @@
             //    toastr.error("Request send failure, try again later" + msg);
             //});
             $.ajax({
-                url: ManagementServerName + 'managequotes',
+                url: operationalParameters.managementServerName + 'managequotes',
                 type: 'DELETE',
                 data: '',
                 success: function () { toastr.success("Request has been sent, this might take a minute"); },
@@ -301,8 +369,7 @@
 
     </script>
 
-    
-</body>
 
+</body>
 </html>
 

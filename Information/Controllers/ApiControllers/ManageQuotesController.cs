@@ -212,7 +212,9 @@ namespace Information.Controllers.ApiControllers
             TableQuery<QuoteTableEntity> query = new TableQuery<QuoteTableEntity>(); 
             foreach( QuoteTableEntity qte in tableReference.ExecuteQuery(query))
             {
-                QuoteRec qr = qte.ExtractQuoteRecord(); 
+                QuoteRec qr = qte.ExtractQuoteRecord();
+                qr.Reference = qr.Reference ?? "";
+                qr.Email = qr.Email ?? ""; 
                 results.Add( qr ); 
             }
             return results; 
@@ -220,13 +222,36 @@ namespace Information.Controllers.ApiControllers
         private List<QuoteRec> GetRecordsFromDatabase( string filter )
         {
             List<QuoteRec> results = new List<QuoteRec>(); 
+            
             CloudTable tableReference = QuoteDB.GetQuotesTableReference();
-            TableQuery<QuoteTableEntity> query = new TableQuery<QuoteTableEntity>().Where(TableQuery.GenerateFilterCondition("Quote", QueryComparisons.Equal, filter));
+
+            // WIP this is poor performance cause it pulls all data from Table Space before it checks for contents
+            // WIP this is poor performance cause it pulls all data from Table Space before it checks for contents
+            // WIP this is poor performance cause it pulls all data from Table Space before it checks for contents
+            TableQuery<QuoteTableEntity> query = new TableQuery<QuoteTableEntity>();
+            filter = filter.ToLower(); 
             foreach (QuoteTableEntity qte in tableReference.ExecuteQuery(query))
             {
-                QuoteRec qr = qte.ExtractQuoteRecord();
-                results.Add(qr);
+                if ( qte.ActualQuoteRec.ToLower().Contains(filter))
+                {
+                    QuoteRec qr = qte.ExtractQuoteRecord();
+                    results.Add(qr);
+                }
             }
+
+            // WIP next attempt, review how to get context and reference table 
+            //   http://msdn.microsoft.com/en-us/library/azure/dd894039.aspx
+            // 
+
+
+            //// WIP: this returns 501 Not Supported from Azure
+            //TableQuery<QuoteTableEntity> tq = tableReference.CreateQuery<QuoteTableEntity>(); 
+            //var selected = tq.Where( d=>d.ActualQuoteRec.Contains(filter));
+            //foreach (var qtr in selected)
+            //{
+            //    results.Add( (QuoteRec)qtr.ExtractQuoteRecord()); 
+            //}
+
             return results;
         }
 

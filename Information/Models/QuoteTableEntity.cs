@@ -26,6 +26,7 @@ namespace Information.Models
         public QuoteRec ExtractQuoteRecord()
         {
             var qr = JsonConvert.DeserializeObject<QuoteRec>(ActualQuoteRec);
+            qr.RowKey = this.RowKey; 
             return qr; 
         }
         public void StoreQuoteRecord(QuoteRec q)

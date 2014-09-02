@@ -52,6 +52,8 @@ namespace Information.Controllers
         }
         public ActionResult Admin()
         {
+            ViewBag.QuoteServerLocation = GetQuoteServerLocation();
+            ViewBag.Timeout = 10000;
             return View();
         }
     }

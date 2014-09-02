@@ -15,5 +15,6 @@ namespace Information.Models
         public int VoteDown { get; set; }
         public bool ModeratorApproved { get; set; }
         public Guid QuoteSubmitter{ get; set; }
+        public string RowKey { get; set; }
     }
 }
