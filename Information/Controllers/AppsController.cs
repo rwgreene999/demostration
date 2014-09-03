@@ -34,6 +34,13 @@ namespace Information.Controllers
             ViewBag.Timeout = 10000;
             return View();
         }
+        public ActionResult QuoteB()
+        {
+            var serverlocation = GetQuoteServerLocation();
+            ViewBag.QuoteServerLocation = serverlocation + "ManageQuotes"; 
+            ViewBag.Timeout = 10000;
+            return View();
+        }
         public ActionResult GeolocationFromGoogle()
         {
             return View();

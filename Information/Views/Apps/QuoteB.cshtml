@@ -1,0 +1,314 @@
+﻿@{
+    ViewBag.Title = "Quote - DB";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    @* Page based CSS overrides *@ ul {
+        list-style: none;
+    }
+</style>
+
+
+<div class="container" ng-app="quoteApp">
+    <div class="row" ng-controller="QuoteController">
+
+        <p>Quotes:</p>
+
+
+        <section class="row">
+            <div>
+                <div class="col-md-4">
+                    <input type="text" value="" ng-model="filterCriteria" placeholder="optional filter" />
+                    <button class="btn btn-primary" type="button" id="searchQuotes" ng-click="getMoreQuotes()">Get a Quote</button>
+                    <button class="btn btn-primary" type="button" id="searchQuotes" ng-click="getMoreQuotes(10)">Get Quotes</button>
+
+                </div>
+
+
+                <ul ng-model="theQuotes" class="col-md-6">
+                    <article>
+
+                        <li ng-repeat="qt in quotes" class="well wel-sm ">
+                            <div style="width: 100%">
+                                <b>{{qt.Quote}}</b><br />
+                                <i>{{qt.Author}}</i>
+                                <br />
+                            </div>
+                            <div>
+                                <div style="width: 49%; float: left; display: inline">
+                                    <img src="~/images/ThumbsUp.gif" width="50px"
+                                         alt="Vote UP!"
+                                         ng-click="VoteThisQuoteUp($index)" />
+                                    <br />
+                                    <i>up votes {{qt.VoteUp}}</i>
+                                </div>
+                                <div style="width: 49%; float: right; display: inline">
+                                    <img src="~/images/ThumbsDown.gif" width="50px"
+                                         alt="Vote UP!"
+                                         ng-click="VoteThisQuoteDown($index)" />
+                                    <br />
+                                    <i>down votes {{qt.VoteDown}}</i>
+
+                                </div>
+                            </div>
+                            <hr />
+                        </li>
+                    </article>
+                </ul>
+
+
+            </div>
+        </section>
+
+
+        <div class="row">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary" ng-click="suggestQuote()">Suggest a Quote</button>
+            </div>
+        </div>
+
+
+        <section class="row">
+            <div ng-show="addingQuote">
+                <p>Quote Suggestion:</p>
+
+                <form role="form">
+                    <div class="form-group">
+
+                        <div class="form-group">
+                            <label class="myFormLabel" for="quote">Quote:</label>
+                            <textarea id="quote" ng-model="newQuote.quote" placeholder="the quote" required></textarea>
+                            <br />
+                        </div>
+                        <div class="form-group">
+                            <label class="myFormLabel" for="author">Author:</label><input id="author" type="text" ng-model="newQuote.author" placeholder="author's name" required /><br />
+                        </div>
+                        <div class="form-group">
+                            <label class="myFormLabel" for="reference">Reference:</label><input id="reference" type="url" ng-model="newQuote.reference" placeholder="reference url" /><br />
+                        </div>
+                        <div class="form-group">
+                            <label class="myFormLabel" for="youremail">eMail:</label><input id="youremail" type="email" ng-model="newQuote.email" placeholder="optional email" /><br />
+                        </div>
+                        <div class="form-group">
+                            <button ng-click="clear()" class="btn btn-warning float-left">Clear</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <button ng-click="submit(newQuote)" class="btn btn-success float-left">Submit</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </section>
+
+    </div>
+
+
+
+    @section scripts{
+
+        <script src="~/Scripts/angular.js"></script>
+        <script src="~/Scripts/angular-resource.js"></script>
+        <script src="~/Scripts/toastr.js"></script>
+
+    }
+
+    <script>
+
+        var operationalParameters =
+        {
+            "quoteServerName": "@ViewBag.QuoteServerLocation"
+            , "timeout": "@ViewBag.timeOut"
+            , "popupTitle": "Quote-DB"
+        }
+        var WTF = '@Url.Content("~/App_Data/ThumbsDown.gif") ';
+        toastr.info(WTF, "WIP")
+        //
+        // module
+        //
+        var app = angular.module("quoteApp", ['ngResource']);
+
+
+        app.factory('notificationFactory', function () {
+            return {
+                success: function (text) {
+                    toastr.success(text, operationalParameters.popupTitle);
+                }
+                , error: function (text) {
+                    toastr.error(text, operationalParameters.popupTitle);
+                }
+                , voteup: function (text) {
+                    toastr.success("-" + text + "Voted UP!", operationalParameters.popupTitle);
+                }
+                , votedown: function (text) {
+                    toastr.success("-" + text + "Voted DOWN!", operationalParameters.popupTitle);
+                }
+            }
+        });
+
+        //
+        // controller
+        //
+        //
+        // attempt to seperate new quote from older stuff
+        //app.controller("QuoteAddController", [
+        //    "$scope",
+        //    "quoteService",
+        //    function ($scope, quoteService) {
+
+        //        $scope.clear = function () {
+        //            $scope.addingQuote = false;
+        //        };
+        //        $scope.submit = function (newQuote) {
+        //            console.log(newQuote);
+        //        };
+        //    }
+        //]);
+
+
+
+        app.controller("QuoteController", [
+            "$scope",
+            "quoteService",
+            "notificationFactory",
+            function ($scope, quoteService, notificationFactory) {
+                var quotes = [];
+                $scope.quotes = quotes;
+
+                $scope.clear = function () {
+                    $scope.addingQuote = false;
+                };
+
+                $scope.submit = function (newQuote) {
+                    var quoter = quoteService.newQuote(newQuote);
+                    quoter.$promise
+                        .then(function (results) {
+                            $scope.quotes = RemoveBrInData(results);
+                            $scope.addingQuote = false;
+                        }), function (error) {
+                            notificationFactory.error("Failure updating server with your wonderful quote");
+                        };
+                };
+
+
+                // $scope.quotes = quoteService.getQuote();
+
+                var quoter = quoteService.getQuote();
+                quoter.$promise.then(function (results) {
+                    var z = results;
+                    $scope.quotes = RemoveBrInData(results);
+                });
+
+                $scope.suggestQuote = function () {
+                    $scope.addingQuote = true;
+                }
+
+
+                $scope.VoteThisQuoteUp = function (idx) {
+                    notificationFactory.voteup(idx);
+                }
+                $scope.VoteThisQuoteDown = function (idx) {
+                    notificationFactory.votedown(idx);
+                }
+
+
+                $scope.getMoreQuotes = function (maxQuotesToReturn) {
+                    //if (($scope.filterCriteria === undefined) || ($scope.filterCriteria.length < 1)) {
+
+                    //    var quoter = quoteService.getQuote();
+                    //    quoter.$promise.then(function (results) {
+                    //        $scope.quotes = RemoveBrInData(results);
+                    //    });
+
+                    //} else {
+
+                    var filter = "";
+                    if (($scope.filterCriteria === undefined) || ($scope.filterCriteria.length < 1)) {
+                    } else {
+                        var filter = $scope.filterCriteria;
+                    }
+
+
+
+
+                    if (isNaN(maxQuotesToReturn)) {
+                        maxQuotesToReturn = 1;
+                    }
+
+                    var data = { id: filter, maxToReturn: maxQuotesToReturn };
+                    // $scope.quotes = quoteService.getQuotes(data);
+
+                    var quoter = quoteService.getQuotes(data);
+                    quoter.$promise.then(function (results) {
+                        $scope.quotes = RemoveBrInData(results);
+                    });
+                    // }
+                }
+            }
+
+        ]);
+
+
+        function RemoveBrInData(res) {
+
+            for (idx = 0; idx < res.length; idx++) {
+                data = res[idx].Quote;
+                while (data.indexOf("<br>") > 0) {
+                    data = data.replace("<br>", " ");
+                }
+                res[idx].Quote = data;
+                data = res[idx].Author;
+                while (data.indexOf("<br>") > 0) {
+                    data = data.replace("<br>", " ");
+                }
+                res[idx].Author = data;
+
+            }
+            //for (var idx in res) {
+            //    console.log(res[idx]);
+            //}
+            //for (var idx in res) {
+            //    if (idx = "$promise") continue;
+            //    if (idx = "$resolved") continue;
+            //    data = res[idx].Quote;
+            //    while (data.indexOf("<br>") > 0) {
+            //        data = data.replace("<br>", " ");
+            //    }
+            //    res[idx].Quote = data;
+            //}
+            return res;
+        }
+
+
+
+        //
+        // services
+        //
+
+        app.service("quoteService", [
+            '$resource',
+            function ($resource) {
+                var serverResource = $resource(operationalParameters.quoteServerName );
+                var serverResourceId = $resource(operationalParameters.quoteServerName + '/:id');
+                return {
+                    getQuote: function () {
+                        return serverResource.query();
+                    },
+                    getQuotes: function (filter) {
+                        return serverResource.query(filter)
+                    },
+                    newQuote: function (newQuoteData) {
+                        var ready = JSON.stringify(newQuoteData);
+                        return serverResource.save(ready);
+                    }
+
+                }
+
+            }]);
+
+
+
+
+    </script>

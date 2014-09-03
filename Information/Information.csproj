@@ -170,6 +170,8 @@
     <Compile Include="Utilities\QuoteDB.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\ThumbsDown.gif" />
+    <Content Include="images\ThumbsUp.gif" />
     <Content Include="Content\bootstrap_orange.css" />
     <Content Include="Content\bootstrap_sandstone.css" />
     <Content Include="Content\bootstrap_darkly.css" />
@@ -234,7 +236,9 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Content\toastr.css" />
     <Content Include="Content\toastr.min.css" />
-    <Content Include="favicon.ico" />
+    <Content Include="favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="App_Data\sig.dat" />
@@ -616,6 +620,7 @@
     <Content Include="Views\Apps\MovieReviewDemo.cshtml" />
     <Content Include="Views\Apps\LongLat.cshtml" />
     <Content Include="Views\Apps\Admin.cshtml" />
+    <Content Include="Views\Apps\QuoteB.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
