@@ -36,8 +36,8 @@ namespace Information.Controllers
         }
         public ActionResult QuoteB()
         {
-            var serverlocation = GetQuoteServerLocation();
-            ViewBag.QuoteServerLocation = serverlocation + "ManageQuotes"; 
+            var serverlocationController = GetQuoteServerLocation();
+            ViewBag.QuoteServerLocation = serverlocationController + "QuoteDB"; 
             ViewBag.Timeout = 10000;
             return View();
         }

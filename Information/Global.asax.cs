@@ -47,7 +47,7 @@ namespace Information
             try
             {
                 List<QuoteRec> quoteRecs = new List<QuoteRec> { new QuoteRec { Author = "DB", Quote = "loading data " } };
-                Application["FullAppQuotes"] = quoteRecs;
+                Application["QuoteDBDataCache"] = quoteRecs;
 
                 var qtr = QuoteDB.GetQuotesTableReference();
 
@@ -63,14 +63,14 @@ namespace Information
                     QuoteRec qr = qte.ExtractQuoteRecord();
                     quoteRecs.Add(qr); 
                 }
-                Application["FullAppQuotes"] = quoteRecs;
+                Application["QuoteDBDataCache"] = quoteRecs;
 
             }
             catch( Microsoft.WindowsAzure.Storage.StorageException ex )
             {
                 new LogException(ex);
                 List<QuoteRec> quoteRecs = new List<QuoteRec> { new QuoteRec { Author = "DB", Quote = "Database error loading data" } };
-                Application["FullAppQuotes"] = quoteRecs;
+                Application["QuoteDBDataCache"] = quoteRecs;
             }
             catch (Exception ex)
             {

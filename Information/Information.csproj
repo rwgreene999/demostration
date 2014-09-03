@@ -153,6 +153,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ApiControllers\ManageQuotesController.cs" />
     <Compile Include="Controllers\ApiControllers\QuoteController.cs" />
+    <Compile Include="Controllers\ApiControllers\QuoteDBController.cs" />
     <Compile Include="Controllers\ApiControllers\Test1Controller.cs" />
     <Compile Include="Controllers\AppsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
