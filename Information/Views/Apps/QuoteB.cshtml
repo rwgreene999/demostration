@@ -39,18 +39,18 @@
                             </div>
                             <div>
                                 <div style="width: 49%; float: left; display: inline">
-                                    <img src="~/images/ThumbsUp.gif" width="50px"
+                                    <img src="~/images/ThumbsUp.gif" width="40px"
                                          alt="Vote UP!"
                                          ng-click="VoteThisQuoteUp($index)" />
                                     <br />
-                                    <i>up votes {{qt.VoteUp}}</i>
+                                    <small><i>up votes {{qt.VoteUp}}</i></small>
                                 </div>
                                 <div style="width: 49%; float: right; display: inline">
-                                    <img src="~/images/ThumbsDown.gif" width="50px"
+                                    <img src="~/images/ThumbsDown.gif" width="40px"
                                          alt="Vote UP!"
                                          ng-click="VoteThisQuoteDown($index)" />
                                     <br />
-                                    <i>down votes {{qt.VoteDown}}</i>
+                                    <small><i>down votes {{qt.VoteDown}}</i></small>
 
                                 </div>
                             </div>
@@ -123,8 +123,7 @@
             , "timeout": "@ViewBag.timeOut"
             , "popupTitle": "Quote-DB"
         }
-        var WTF = '@Url.Content("~/App_Data/ThumbsDown.gif") ';
-        toastr.info(WTF, "WIP")
+
         //
         // module
         //
@@ -139,11 +138,14 @@
                 , error: function (text) {
                     toastr.error(text, operationalParameters.popupTitle);
                 }
-                , voteup: function (text) {
-                    toastr.success("-" + text + "Voted UP!", operationalParameters.popupTitle);
+                , votingUp: function (text) {
+                    toastr.success("- id:" + text + "Voting UP sent!", operationalParameters.popupTitle);
                 }
-                , votedown: function (text) {
-                    toastr.success("-" + text + "Voted DOWN!", operationalParameters.popupTitle);
+                , votingDown: function (text) {
+                    toastr.success("- id:" + text + "Voting DOWN sent", operationalParameters.popupTitle);
+                }
+                , clearToast: function () {
+                    toastr.clear(); 
                 }
             }
         });
@@ -185,7 +187,7 @@
                     var quoter = quoteService.newQuote(newQuote);
                     quoter.$promise
                         .then(function (results) {
-                            $scope.quotes = RemoveBrInData(results);
+                            $scope.quotes = results; // RemoveBrInData(results);
                             $scope.addingQuote = false;
                         }), function (error) {
                             notificationFactory.error("Failure updating server with your wonderful quote");
@@ -197,8 +199,7 @@
 
                 var quoter = quoteService.getQuote();
                 quoter.$promise.then(function (results) {
-                    var z = results;
-                    $scope.quotes = RemoveBrInData(results);
+                    $scope.quotes = results; // RemoveBrInData(results);
                 });
 
                 $scope.suggestQuote = function () {
@@ -207,10 +208,57 @@
 
 
                 $scope.VoteThisQuoteUp = function (idx) {
-                    notificationFactory.voteup(idx);
+                    notificationFactory.votingUp(idx);
+                    var quoteRec = $scope.quotes[idx];
+                    if (typeof (quoteRec) === 'undefined') {
+                        return;
+                    }
+                    
+                    $.ajax({
+                        url: operationalParameters.quoteServerName + '?RowKey=' + quoteRec.RowKey + '&VoteUp=true',
+                        type: 'POST',
+                        data: '', 
+                        success: function (results) {
+                            notificationFactory.clearToast();
+                            if (results.length == 1)
+                            {
+                                $scope.quotes[idx] = results[0];
+                                $scope.$apply();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            notificationFactory.clearToast();
+                            toastr.error("Voting error while updating database  " + errorThrown);
+                        }
+                    });
+
+                    // WIP: Come up with angularJS solution 
+                    //var quoter = quoteService.voteUp(quoteRec.RowKey);
+                    //quoter.$promise
+                    //    .then(function (results) {
+                    //        $scope.quotes = results; // RemoveBrInData(results);
+                    //        $scope.addingQuote = false;
+                    //    }), function (error) {
+                    //        notificationFactory.error("Failure updating server with your wonderful quote");
+                    //    };
                 }
                 $scope.VoteThisQuoteDown = function (idx) {
-                    notificationFactory.votedown(idx);
+                    notificationFactory.votingDown(idx);
+                    $.ajax({
+                        url: operationalParameters.quoteServerName + '?RowKey=' + quoteRec.RowKey + '&VoteUp=false',
+                        type: 'POST',
+                        data: '',
+                        success: function (results) {
+                            notificationFactory.clearToast();
+                            $scope.quotes[idx] = results;
+                            $scope.$apply(); 
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            notificationFactory.clearToast();
+                            toastr.error("Voting error while updating database  " + errorThrown);
+                        }
+                    });
+
                 }
 
 
@@ -290,20 +338,35 @@
         app.service("quoteService", [
             '$resource',
             function ($resource) {
-                var serverResource = $resource(operationalParameters.quoteServerName );
+                var serverResource = $resource(operationalParameters.quoteServerName);
                 var serverResourceId = $resource(operationalParameters.quoteServerName + '/:id');
                 return {
                     getQuote: function () {
                         return serverResource.query();
-                    },
-                    getQuotes: function (filter) {
+                    }
+                    , getQuotes: function (filter) {
                         return serverResource.query(filter)
-                    },
-                    newQuote: function (newQuoteData) {
+                    }
+                    , newQuote: function (newQuoteData) {
                         var ready = JSON.stringify(newQuoteData);
                         return serverResource.save(ready);
                     }
+                    , voteUp: function (rowkey) {
+                        //WIP: come up with AmgularJS solution that works. 
+                        //var data = {'RowKey':rowkey, 'VoteUp':'yes'};
+                        //var ready = JSON.stringify(data);
+                        //serverResource.$
+                        //return serverResource.save(ready);
 
+                        $.ajax({
+                            url: operationalParameters.quoteServerName,  // + '?RowKey=' + rowkey + '&VoteUp=true', 
+                            type: 'POST',
+                            data: '?RowKey=' + rowkey + '&VoteUp=true',
+                            success: function (results) { toastr.success("Database has been updated."); },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) { toastr.error("Error updating database  " + errorThrown); }
+                        });
+
+                    }
                 }
 
             }]);

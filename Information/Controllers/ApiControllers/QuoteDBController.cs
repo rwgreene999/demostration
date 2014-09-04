@@ -42,13 +42,15 @@ namespace Information.Controllers.ApiControllers
         }
 
 
-        public QuoteRec  Post([FromBody] QuoteRec submittedQuote)
-        {
-            System.Diagnostics.Debug.WriteLine(submittedQuote.ToString());
-            QuoteRec qr = submittedQuote; 
-            AddQuote(qr);
-            return qr;
-        }
+        //public QuoteRec  Post([FromBody] QuoteRec submittedQuote)
+        //{
+        //    System.Diagnostics.Debug.WriteLine(submittedQuote.ToString());
+        //    QuoteRec qr = submittedQuote; 
+        //    AddQuote(qr);
+        //    return qr;
+        //}
+
+        // public List<QuoteRec> Post([FromBody] string RowKey, [FromBody] bool VoteUp)
 
         public List<QuoteRec> Post(string RowKey, bool VoteUp)
         {
@@ -58,8 +60,8 @@ namespace Information.Controllers.ApiControllers
             {
                 return ReturnNotFound(); 
             }
-            
-            if ( VoteUp )
+
+            if (VoteUp)
             {
                 qr.VoteUp++; 
             } else
@@ -71,6 +73,12 @@ namespace Information.Controllers.ApiControllers
             // WIP update Table Store data, and to be really cool, update it in the background after returning to the browser 
 
             return quoterecs;  
+        }
+
+        public class VotePost
+        {
+            public string  rowKey { get; set; }
+            public string voteUp { get; set; }
         }
 
 
