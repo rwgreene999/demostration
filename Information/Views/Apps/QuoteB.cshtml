@@ -187,7 +187,7 @@
                     var quoter = quoteService.newQuote(newQuote);
                     quoter.$promise
                         .then(function (results) {
-                            $scope.quotes = results; // RemoveBrInData(results);
+                            $scope.quotes = RemoveBrInData(results);
                             $scope.addingQuote = false;
                         }), function (error) {
                             notificationFactory.error("Failure updating server with your wonderful quote");
@@ -199,7 +199,7 @@
 
                 var quoter = quoteService.getQuote();
                 quoter.$promise.then(function (results) {
-                    $scope.quotes = results; // RemoveBrInData(results);
+                    $scope.quotes = RemoveBrInData(results);
                 });
 
                 $scope.suggestQuote = function () {
@@ -244,14 +244,20 @@
                 }
                 $scope.VoteThisQuoteDown = function (idx) {
                     notificationFactory.votingDown(idx);
+                    var quoteRec = $scope.quotes[idx];
+                    if (typeof (quoteRec) === 'undefined') {
+                        return;
+                    }
                     $.ajax({
                         url: operationalParameters.quoteServerName + '?RowKey=' + quoteRec.RowKey + '&VoteUp=false',
                         type: 'POST',
                         data: '',
                         success: function (results) {
                             notificationFactory.clearToast();
-                            $scope.quotes[idx] = results;
-                            $scope.$apply(); 
+                            if (results.length == 1) {
+                                $scope.quotes[idx] = results[0];
+                                $scope.$apply();
+                            }
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             notificationFactory.clearToast();
@@ -304,12 +310,12 @@
             for (idx = 0; idx < res.length; idx++) {
                 data = res[idx].Quote;
                 while (data.indexOf("<br>") > 0) {
-                    data = data.replace("<br>", " ");
+                    data = data.replace("<br>", "\n");
                 }
                 res[idx].Quote = data;
                 data = res[idx].Author;
                 while (data.indexOf("<br>") > 0) {
-                    data = data.replace("<br>", " ");
+                    data = data.replace("<br>", "\n");
                 }
                 res[idx].Author = data;
 
